@@ -8,7 +8,7 @@
     
     <style>
       body {
-        font-family: 'Oswald';
+        font-family: 'Verdana';
       }
       .nav {
         display: flex;
@@ -18,7 +18,7 @@
       }
       .selected {
         border: solid 1px black;
-        padding: 1rem;
+        padding: 0.5rem;
       }
     </style>
   </head>
@@ -30,21 +30,21 @@
       const { createElement, Component } = React;
       const { HashRouter, Link, Route, Switch, Redirect } = ReactRouterDOM;
 
-      const Nav = ( { products, companies, offerings }) => {
-        const path = location.path;
+      const Nav = ( { products, companies, offerings, path }) => {
         return (
           <div>
-            <h1>Acme Product Average</h1>
+            <h1>Acme Product Averages React</h1>
             <div className='nav'>
               <Link to='/home' className={path === '/home' ? 'selected' : ''}>Home</Link>
               <Link to='/products' className={path === '/products' ? 'selected' : ''}>Products</Link>
             </div>
+            <h2>Products</h2>
           </div>
         );
       }
 
       const Home = ( { products, companies, offerings } ) => {
-        'We have 6 products with an average price of 12.87'
+        `We have ${products.length} products with an average price of ${products.averagePrice}`;
       }
 
       const Products = ( { products, companies, offerings, } ) => {
@@ -56,26 +56,27 @@
             return {...product, offerings: _offerings};
         });
         return (
-          <ul>
+          <div>
           {
-            processed.map( product => <li key={ product.id }>
+            processed.map( product => <div key={ product.id }>
               <b>Product</b>: { product.name }
               <br />
-              <b>suggested Price</b>: { product.suggestedPrice }.00
+              <b>Suggested Price</b>: { product.suggestedPrice }.00
               <br />
-              <b>Average Price</b>: { product.suggestedPrice }
-              <br />
-              <b>Lowest Price</b>: <ul>
-                {
-                  product.offerings.map( offering =>  <li key= { offering.id }> 
-                    { offering.company.name }
-                    </li>)
+              <b>Average Price</b>: 
+                {  
+                  // ( Math.round( ( offering.price / offering.length ) * 100 ) / 100 )
+                  // product.offerings.map( offering => console.log(offering))
                 }
-              </ul>
+              <br />
+              <b>Lowest Price</b>: 
+                {
+                  product.offerings.map( offering =>  Math.min(offering.price) )
+                }
               <hr />
-            </li>)
+            </div>)
           }
-          </ul>
+          </div>
         );
       }
 
