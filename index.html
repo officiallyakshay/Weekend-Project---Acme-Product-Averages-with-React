@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.1/react-router-dom.js"></script>
+    
+    <style>
+      body {
+        font-family: 'Oswald';
+      }
+      .nav {
+        display: flex;
+        justify-content: space-around;
+        padding: 1rem;
+        font-weight: 50%;
+      }
+      .selected {
+        border: solid 1px black;
+        padding: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='root'></div>
+    <script type='text/babel'>
+
+      const { render } = ReactDOM;
+      const { createElement, Component } = React;
+      const { HashRouter, Link, Route, Switch, Redirect } = ReactRouterDOM;
+
+      const Nav = ( { products, companies, offerings }) => {
+        const path = location.path;
+        return (
+          <div>
+            <h1>Acme Product Average</h1>
+            <div className='nav'>
+              <Link to='/home' className={path === '/home' ? 'selected' : ''}>Home</Link>
+              <Link to='/products' className={path === '/products' ? 'selected' : ''}>Products</Link>
+            </div>
+          </div>
+        );
+      }
+
+      const Home = ( { products, companies, offerings } ) => {
+        'We have 6 products with an average price of 12.87'
+      }
+
+      const Products = ( { products, companies, offerings, } ) => {
+        const processed = products.map( product => {
+          const _offerings = offerings.filter( offering => offering.productId === product.id)
+            .map( offering => {
+              return {...offering, company: companies.find( company => company.id === offering.companyId) }
+            });
+            return {...product, offerings: _offerings};
+        });
+        return (
+          <ul>
+          {
+            processed.map( product => <li key={ product.id }>
+              <b>Product</b>: { product.name }
+              <br />
+              <b>suggested Price</b>: { product.suggestedPrice }.00
+              <br />
+              <b>Average Price</b>: { product.suggestedPrice }
+              <br />
+              <b>Lowest Price</b>: <ul>
+                {
+                  product.offerings.map( offering =>  <li key= { offering.id }> 
+                    { offering.company.name }
+                    </li>)
+                }
+              </ul>
+              <hr />
+            </li>)
+          }
+          </ul>
+        );
+      }
+
+      class App extends Component {
+        constructor() {
+          super();
+          this.state = {
+            home: [],
+            products: [],
+            companies: [],
+            offerings: []
+          }
+        }
+        async componentDidMount() {
+          const urls = [
+            'https://acme-users-api-rev.herokuapp.com/api/products',
+            'https://acme-users-api-rev.herokuapp.com/api/companies',
+            'https://acme-users-api-rev.herokuapp.com/api/offerings'
+          ];
+          const responses = await Promise.all(urls.map( url => axios.get( url )))
+          const [products, companies, offerings] = responses.map( response => response.data );
+          this.setState({ products, companies, offerings });
+        }
+        render() {
+          const { products, companies, offerings, home } = this.state;
+          return (
+            <HashRouter>
+              <Route render={ ({ location }) => <Nav path={ location.pathname } home = { home } products = { products } /> } />
+                <Switch>
+                  <Route path = '/home' render = { () => <Home 
+                    products = { products }
+                    offerings = { offerings }
+                    companies = { companies }
+                    /> }
+                  />
+                  <Route path = '/products' render = { () => <Products
+                    products = { products }
+                    offerings = { offerings }
+                    companies = { companies }
+                    /> }
+                  />
+                  <Redirect to = '/products' />
+                </Switch>
+            </HashRouter>
+          )
+        }
+      }
+
+      const root = document.querySelector('#root');
+      render(<App />, root);
+    </script>
+  </body>
+</html>
