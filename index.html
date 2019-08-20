@@ -43,18 +43,26 @@
         );
       }
 
-      const Home = ( { products, companies, offerings } ) => {
-        `We have ${products.length} products with an average price of ${products.averagePrice}`;
-      }
-
       const Products = ( { products, companies, offerings, } ) => {
         const processed = products.map( product => {
+          let sum = 0;
+          let companyName = ''
+          let lowestPrice = Infinity
           const _offerings = offerings.filter( offering => offering.productId === product.id)
             .map( offering => {
-              return {...offering, company: companies.find( company => company.id === offering.companyId) }
+              sum += offering.price
+              const company = companies.find( company => company.id === offering.companyId);
+              if (offering.price < lowestPrice) {
+                lowestPrice = offering.price;
+                companyName = company.name;
+              }
+              return {...offering, company: company }
             });
-            return {...product, offerings: _offerings};
+            return {...product, offerings: _offerings, averagePrice: sum / _offerings.length, lowestPrice: lowestPrice, companyName: companyName};
         });
+
+        const numberProducts = processed.length;
+        console.log(processed[0]);
         return (
           <div>
           {
@@ -63,21 +71,20 @@
               <br />
               <b>Suggested Price</b>: { product.suggestedPrice }.00
               <br />
-              <b>Average Price</b>: 
-                {  
-                  // ( Math.round( ( offering.price / offering.length ) * 100 ) / 100 )
-                  // product.offerings.map( offering => console.log(offering))
-                }
+              <b>Average Price</b>: { Math.round( product.averagePrice ) }
               <br />
               <b>Lowest Price</b>: 
-                {
-                  product.offerings.map( offering =>  Math.min(offering.price) )
-                }
+                { ` ${ Math.min(product.lowestPrice) } offered by ${product.companyName}`}
               <hr />
             </div>)
           }
           </div>
         );
+      }
+
+      const Home = ( { products, companies, offerings } ) => {
+        console.log(products)
+        // `We have ${numberProducts} products with an average price of ${averagePrice}`;
       }
 
       class App extends Component {
