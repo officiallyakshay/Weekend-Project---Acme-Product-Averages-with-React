@@ -58,7 +58,7 @@
         return (
         <div>
           {
-              `We have ${products.length} products with an average price of ${Math.round( avg )}`
+              `We have ${products.length} products with an average price of ${( Math.round( avg  * 100 ) / 100)}`
           }
         </div>
           );
@@ -90,7 +90,7 @@
               <br />
               <b>Suggested Price</b>: { product.suggestedPrice }.00
               <br />
-              <b>Average Price</b>: { Math.round( product.averagePrice ) }
+              <b>Average Price</b>: { (Math.round( product.averagePrice * 100 )) / 100 }
               <br />
               <b>Lowest Price</b>: 
                 { ` ${ Math.min(product.lowestPrice) } offered by ${product.companyName}`}
