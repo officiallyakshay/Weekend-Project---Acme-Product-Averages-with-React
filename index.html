@@ -43,6 +43,27 @@
         );
       }
 
+      const Home = ( { products, companies, offerings } ) => {
+
+        const totalAverageProductPrice = products.reduce( (acc, product) => {
+          const _offerings = offerings.filter( offering => offering.productId === product.id)
+            const sum = _offerings.reduce( (acc, offering) => {
+              return acc += offering.price;
+            }, 0)
+            return acc += sum / _offerings.length;
+        }, 0);
+
+        const avg = totalAverageProductPrice / products.length;
+
+        return (
+        <div>
+          {
+              `We have ${products.length} products with an average price of ${Math.round( avg )}`
+          }
+        </div>
+          );
+      }
+
       const Products = ( { products, companies, offerings, } ) => {
         const processed = products.map( product => {
           let sum = 0;
@@ -61,8 +82,6 @@
             return {...product, offerings: _offerings, averagePrice: sum / _offerings.length, lowestPrice: lowestPrice, companyName: companyName};
         });
 
-        const numberProducts = processed.length;
-        console.log(processed[0]);
         return (
           <div>
           {
@@ -80,11 +99,6 @@
           }
           </div>
         );
-      }
-
-      const Home = ( { products, companies, offerings } ) => {
-        console.log(products)
-        // `We have ${numberProducts} products with an average price of ${averagePrice}`;
       }
 
       class App extends Component {
